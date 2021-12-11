@@ -1,5 +1,5 @@
 {
-  "name": "@sridhard/react-vimeo",
+  "name": "react-vimeo",
   "version": "0.9.5",
   "description": "Vimeo player component for React.",
   "main": "dist/react-vimeo.js",
