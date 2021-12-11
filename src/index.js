@@ -74,7 +74,11 @@ class Vimeo extends React.Component {
           player.setVolume(value);
           break;
         case 'playbackrate':
-          player.setPlaybackRate(value);
+          player.setPlaybackRate(value).then(()=>{
+            console.log('Setting playback rate success');
+          }).catch((err)=>{
+            console.log('Setting playback rate failed');
+          });
           break;            
         case 'paused':
           player.getPaused().then((paused) => {
