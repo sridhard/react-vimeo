@@ -1,34 +1,83 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Player from '@vimeo/player';
-import eventNames from './eventNames';
 
-class Vimeo extends React.Component {
-  constructor(props) {
-    super(props);
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
 
-    this.refContainer = this.refContainer.bind(this);
+  _setPrototypeOf(subClass, superClass);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
   }
 
-  componentDidMount() {
+  return self;
+}
+
+var eventNames = {
+  play: 'onPlay',
+  pause: 'onPause',
+  ended: 'onEnd',
+  timeupdate: 'onTimeUpdate',
+  progress: 'onProgress',
+  seeked: 'onSeeked',
+  texttrackchange: 'onTextTrackChange',
+  cuechange: 'onCueChange',
+  cuepoint: 'onCuePoint',
+  volumechange: 'onVolumeChange',
+  playbackratechange: 'onPlaybackRateChange',
+  error: 'onError',
+  loaded: 'onLoaded'
+};
+
+var Vimeo = /*#__PURE__*/function (_React$Component) {
+  _inheritsLoose(Vimeo, _React$Component);
+
+  function Vimeo(props) {
+    var _this;
+
+    _this = _React$Component.call(this, props) || this;
+    _this.refContainer = _this.refContainer.bind(_assertThisInitialized(_this));
+    return _this;
+  }
+
+  var _proto = Vimeo.prototype;
+
+  _proto.componentDidMount = function componentDidMount() {
     this.createPlayer();
-  }
+  };
 
-  componentDidUpdate(prevProps) {
+  _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
+    var _this2 = this;
+
     // eslint-disable-next-line react/destructuring-assignment
-    const changes = Object.keys(this.props).filter((name) => this.props[name] !== prevProps[name]);
-
+    var changes = Object.keys(this.props).filter(function (name) {
+      return _this2.props[name] !== prevProps[name];
+    });
     this.updateProps(changes);
-  }
+  };
 
-  componentWillUnmount() {
+  _proto.componentWillUnmount = function componentWillUnmount() {
     this.player.destroy();
   }
-
   /**
    * @private
    */
-  getInitialOptions() {
+  ;
+
+  _proto.getInitialOptions = function getInitialOptions() {
     /* eslint-disable react/destructuring-assignment */
     return {
       id: this.props.video,
@@ -47,97 +96,116 @@ class Vimeo extends React.Component {
       responsive: this.props.responsive,
       dnt: this.props.dnt,
       speed: this.props.speed,
-      playbackrate: this.props.playbackrate,
+      playbackrate: this.props.playbackrate
     };
     /* eslint-enable react/destructuring-assignment */
   }
-
   /**
    * @private
    */
-  updateProps(propNames) {
-    const { player } = this;
-    propNames.forEach((name) => {
+  ;
+
+  _proto.updateProps = function updateProps(propNames) {
+    var _this3 = this;
+
+    var player = this.player;
+    propNames.forEach(function (name) {
       // eslint-disable-next-line react/destructuring-assignment
-      const value = this.props[name];
+      var value = _this3.props[name];
+
       switch (name) {
         case 'autopause':
           player.setAutopause(value);
           break;
+
         case 'color':
           player.setColor(value);
           break;
+
         case 'loop':
           player.setLoop(value);
           break;
+
         case 'volume':
           player.setVolume(value);
           break;
+
         case 'playbackrate':
           player.setPlaybackRate(value);
-          break;            
+          break;
+
         case 'paused':
-          player.getPaused().then((paused) => {
+          player.getPaused().then(function (paused) {
             if (value && !paused) {
               return player.pause();
             }
+
             if (!value && paused) {
               return player.play();
             }
+
             return null;
           });
           break;
+
         case 'width':
         case 'height':
           player.element[name] = value;
           break;
+
         case 'video':
           if (value) {
-            const { start } = this.props;
-            const loaded = player.loadVideo(value);
-            // Set the start time only when loading a new video.
+            var start = _this3.props.start;
+            var loaded = player.loadVideo(value); // Set the start time only when loading a new video.
             // It seems like this has to be done after the video has loaded, else it just starts at
             // the beginning!
+
             if (typeof start === 'number') {
-              loaded.then(() => {
+              loaded.then(function () {
                 player.setCurrentTime(start);
               });
             }
           } else {
             player.unload();
           }
+
           break;
-        default:
-          // Nothing
+
       }
     });
   }
-
   /**
    * @private
    */
-  createPlayer() {
-    const { start, volume } = this.props;
+  ;
 
+  _proto.createPlayer = function createPlayer() {
+    var _this4 = this;
+
+    var _this$props = this.props,
+        start = _this$props.start,
+        volume = _this$props.volume;
     this.player = new Player(this.container, this.getInitialOptions());
+    Object.keys(eventNames).forEach(function (dmName) {
+      var reactName = eventNames[dmName];
 
-    Object.keys(eventNames).forEach((dmName) => {
-      const reactName = eventNames[dmName];
-      this.player.on(dmName, (event) => {
+      _this4.player.on(dmName, function (event) {
         // eslint-disable-next-line react/destructuring-assignment
-        const handler = this.props[reactName];
+        var handler = _this4.props[reactName];
+
         if (handler) {
           handler(event);
         }
       });
     });
-
-    const { onError, onReady } = this.props;
-    this.player.ready().then(() => {
+    var _this$props2 = this.props,
+        onError = _this$props2.onError,
+        onReady = _this$props2.onReady;
+    this.player.ready().then(function () {
       if (onReady) {
-        onReady(this.player);
+        onReady(_this4.player);
       }
-    }, (err) => {
+    }, function (err) {
       if (onError) {
         onError(err);
       } else {
@@ -153,68 +221,69 @@ class Vimeo extends React.Component {
       this.updateProps(['volume']);
     }
   }
-
   /**
    * @private
    */
-  refContainer(container) {
+  ;
+
+  _proto.refContainer = function refContainer(container) {
     this.container = container;
-  }
+  };
 
-  render() {
-    const { id, className, style } = this.props;
+  _proto.render = function render() {
+    var _this$props3 = this.props,
+        id = _this$props3.id,
+        className = _this$props3.className,
+        style = _this$props3.style;
+    return /*#__PURE__*/React.createElement("div", {
+      id: id,
+      className: className,
+      style: style,
+      ref: this.refContainer
+    });
+  };
 
-    return (
-      <div
-        id={id}
-        className={className}
-        style={style}
-        ref={this.refContainer}
-      />
-    );
-  }
-}
+  return Vimeo;
+}(React.Component);
 
 if (process.env.NODE_ENV !== 'production') {
   Vimeo.propTypes = {
     /**
      * A Vimeo video ID or URL.
      */
-    video: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
+    video: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+
     /**
      * DOM ID for the player element.
      */
     id: PropTypes.string,
+
     /**
      * CSS className for the player element.
      */
     className: PropTypes.string,
+
     /**
      * Inline style for container element.
      */
-    style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    style: PropTypes.object,
+    // eslint-disable-line react/forbid-prop-types
+
     /**
      * Width of the player element.
      */
-    width: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+
     /**
      * Height of the player element.
      */
-    height: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 
     /**
      * Pause the video.
      */
-    paused: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
+    paused: PropTypes.bool,
+    // eslint-disable-line react/no-unused-prop-types
 
     /**
      * The playback volume as a number between 0 and 1.
@@ -230,8 +299,8 @@ if (process.env.NODE_ENV !== 'production') {
      * The time in seconds at which to start playing the video.
      */
     start: PropTypes.number,
-
     // Player parameters
+
     /**
      * Pause this video automatically when another one plays.
      */
@@ -258,8 +327,8 @@ if (process.env.NODE_ENV !== 'production') {
      * Blocks the player from tracking any session data, including all cookies and analytics.
      */
     dnt: PropTypes.bool,
-
     // Player controls
+
     /**
      * Hide all elements in the player (play bar, sharing buttons, etc).
      */
@@ -299,8 +368,8 @@ if (process.env.NODE_ENV !== 'production') {
      * Enable playback rate controls (requires Vimeo PRO / Business account)
      */
     speed: PropTypes.bool,
-
     // Events
+
     /* eslint-disable react/no-unused-prop-types */
 
     /**
@@ -308,69 +377,82 @@ if (process.env.NODE_ENV !== 'production') {
      * Receives the Vimeo player object in the first parameter.
      */
     onReady: PropTypes.func,
+
     /**
      * Sent when the player triggers an error.
      */
     onError: PropTypes.func,
+
     /**
      * Triggered when the video plays.
      */
     onPlay: PropTypes.func,
+
     /**
      * Triggered when the video pauses.
      */
     onPause: PropTypes.func,
+
     /**
      * Triggered any time the video playback reaches the end.
      * Note: when `loop` is turned on, the ended event will not fire.
      */
     onEnd: PropTypes.func,
+
     /**
      * Triggered as the `currentTime` of the video updates. It generally fires
      * every 250ms, but it may vary depending on the browser.
      */
     onTimeUpdate: PropTypes.func,
+
     /**
      * Triggered as the video is loaded. Reports back the amount of the video
      * that has been buffered.
      */
     onProgress: PropTypes.func,
+
     /**
      * Triggered when the player seeks to a specific time. An `onTimeUpdate`
      * event will also be fired at the same time.
      */
     onSeeked: PropTypes.func,
+
     /**
      * Triggered when the active text track (captions/subtitles) changes. The
      * values will be `null` if text tracks are turned off.
      */
     onTextTrackChange: PropTypes.func,
+
     /**
      * Triggered when the active cue for the current text track changes. It also
      * fires when the active text track changes. There may be multiple cues
      * active.
      */
     onCueChange: PropTypes.func,
+
     /**
      * Triggered when the current time hits a registered cue point.
      */
     onCuePoint: PropTypes.func,
+
     /**
      * Triggered when the volume in the player changes. Some devices do not
      * support setting the volume of the video independently from the system
      * volume, so this event will never fire on those devices.
      */
     onVolumeChange: PropTypes.func,
+
     /**
      * Triggered when the playback rate changes.
      */
     onPlaybackRateChange: PropTypes.func,
+
     /**
      * Triggered when a new video is loaded in the player.
      */
-    onLoaded: PropTypes.func,
-
+    onLoaded: PropTypes.func
     /* eslint-enable react/no-unused-prop-types */
+
   };
 }
 
@@ -386,7 +468,7 @@ Vimeo.defaultProps = {
   background: false,
   responsive: false,
   dnt: false,
-  speed: false,
+  speed: false
 };
 
-export default Vimeo;
+export { Vimeo as default };
