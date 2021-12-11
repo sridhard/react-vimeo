@@ -131,7 +131,11 @@ var Vimeo = /*#__PURE__*/function (_React$Component) {
           break;
 
         case 'playbackrate':
-          player.setPlaybackRate(value);
+          player.setPlaybackRate(value).then(function () {
+            console.log('Setting playback rate success');
+          })["catch"](function (err) {
+            console.log('Setting playback rate failed');
+          });
           break;
 
         case 'paused':
